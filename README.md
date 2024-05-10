@@ -15,6 +15,7 @@ The project currently doesn't follow any known architectures.
 
 ### Suggestions 
 We can apply one of these architectures 
+    
     1- Modular Monolith 
         * This architecture supports having extending the project to have multiple modules each module is isolated and can be at any time separated and run individually.
           in this case each module is considered a Processor that process some data for example (Meetings). The meeting Processor can at any time isolated and separated on its own service and run individually.
@@ -44,3 +45,37 @@ As we manages a lot of data we want embrace parallelism an asynchronous executio
     it is not a good solution. and it is blocking main node thread. we can execute each processor on its own worker.
 
     we can use Message Brokers to enhance data consuming and execution in general but we gonna need setup more sophisticated architecture for it.
+
+
+## Samples
+
+### Abstracted Units
+
+    class CompanyUtility {
+        actionFromCompany(company) {
+            return action;
+        }
+    }
+
+    class CompaniesProcessor {
+        public handle(companies) {
+            uses CompanyUtility
+
+            const action = CompanyUtility.actionFromCompany(company);  // declarative way of programming
+
+            q.push(action);
+        }
+    }
+
+    class Executor {
+        x = new CompaniesProcessor();
+        y = new ContactsProcessor();
+        z = new MeetingsProcessor();
+
+        loop start
+
+            try in parallel
+            result = await Promise.AllSettled([x.handle(), y.handle(), z.handle()]);
+
+        loop again.
+    }
