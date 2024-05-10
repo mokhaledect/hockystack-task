@@ -1,24 +1,46 @@
-# API Sample Test
+# Process Meetings
 
-## Getting Started
+## Code Quality and Readability Enhancements
 
-This project requires a newer version of Node. Don't forget to install the NPM packages afterwards.
+The code is written in an imperative way or style which makes the code is un-readable and so hard to maintain. Also using JS as a dynamic language makes it harder.
+As for quality, code is not organized. single file has everything there is not a good practice at all. 
 
-You should change the name of the ```.env.example``` file to ```.env```.
+### Suggestions 
+    1- Use a Declarative way or style of development (find samples down).
+    2- Apply typescript to enforce types to the code, this will simplify maintenance and trace issues in easier way.
+    3- Use more abstracted Units to encapsulate parts of logic (find samples down)
 
-Run ```node app.js``` to get things started. Hopefully the project should start without any errors.
+## Project Architecture Enhancements
+The project currently doesn't follow any known architectures.
 
-## Explanations
+### Suggestions 
+We can apply one of these architectures 
+    1- Modular Monolith 
+        * This architecture supports having extending the project to have multiple modules each module is isolated and can be at any time separated and run individually.
+          in this case each module is considered a Processor that process some data for example (Meetings). The meeting Processor can at any time isolated and separated on its own service and run individually.
 
-The actual task will be explained separately.
+    2- Entity Boundary Interactor (EBI) = (Screaming Features)
+        * if each processor is not meant to be extended in terms of logic then we can follow this architecture as a list of features managed by an orchestrator that controls which feature(s) to execute.
+        we going to have project structure like this 
+        Project: 
+            features:
+                process-contacts
+                    handler
+                process-companies
+                    handler
+                process-meetings
+            orchestrators:
+                worker.js => setting up the queue or receive it in the constructor. execute features handlers.
 
-This is a very simple project that pulls data from HubSpot's CRM API. It pulls and processes company and contact data from HubSpot but does not insert it into the database.
+## Code Performance
+As we manages a lot of data we want embrace parallelism an asynchronous execution of data pipelines.
 
-In HubSpot, contacts can be part of companies. HubSpot calls this relationship an association. That is, a contact has an association with a company. We make a separate call when processing contacts to fetch this association data.
+### Suggestions
+    We want to execute in parallel the different processors. 
+    await processCompanies();
+    await processContacts();
+    await processMeetings();
 
-The Domain model is a record signifying a HockeyStack customer. You shouldn't worry about the actual implementation of it. The only important property is the ```hubspot```object in ```integrations```. This is how we know which HubSpot instance to connect to.
+    it is not a good solution. and it is blocking main node thread. we can execute each processor on its own worker.
 
-The implementation of the server and the ```server.js``` is not important for this project.
-
-Every data source in this project was created for test purposes. If any request takes more than 5 seconds to execute, there is something wrong with the implementation.
-
+    we can use Message Brokers to enhance data consuming and execution in general but we gonna need setup more sophisticated architecture for it.
